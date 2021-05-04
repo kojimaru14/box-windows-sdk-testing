@@ -2,6 +2,7 @@
 using Box.V2.JWTAuth;
 using Box.V2.Models;
 using System;
+using System.Net;
 using System.Configuration;
 using System.IO;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace Box.V2.Samples.JWTAuth
     static readonly string ENTERPRISE_ID = ConfigurationManager.AppSettings["boxEnterpriseId"];
     static readonly string JWT_PRIVATE_KEY_PASSWORD = ConfigurationManager.AppSettings["boxPrivateKeyPassword"];
     static readonly string JWT_PUBLIC_KEY_ID = ConfigurationManager.AppSettings["boxPublicKeyId"];
+    static bool isProxyEnabled = false; // set isProxyEnabled = true if using Fiddler
 
     static void Main(string[] args)
     {
@@ -33,6 +35,16 @@ namespace Box.V2.Samples.JWTAuth
       var privateKey = File.ReadAllText("private_key.pem");
 
       var boxConfig = new BoxConfig(CLIENT_ID, CLIENT_SECRET, ENTERPRISE_ID, privateKey, JWT_PRIVATE_KEY_PASSWORD, JWT_PUBLIC_KEY_ID);
+
+      // Proxy configuration - set isProxyEnabled = true if using Fiddler!!
+      if (isProxyEnabled != false)
+      {
+        System.Net.WebProxy webProxy = new System.Net.WebProxy("http://127.0.0.1:8888");
+        NetworkCredential credential = new NetworkCredential("testUser", "testPass");
+        webProxy.Credentials = credential;
+        boxConfig.WebProxy = webProxy;
+      }
+
       var boxJWT = new BoxJWTAuth(boxConfig);
 
       var adminToken = boxJWT.AdminToken();
