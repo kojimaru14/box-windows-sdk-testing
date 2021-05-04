@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <appSettings>
+    <!-- Rename this file to app.config and input your config values here -->
+    <add key="boxClientId" value="BOX_CLIENT_ID" />
+    <add key="boxClientSecret" value="BOX_CLIENT_SECRET" />
+    <add key="boxEnterpriseId" value="BOX_ENTERPRISE_ID" />
+    <add key="boxPrivateKeyPassword" value="PRIVATE_KEY_PASSWORD" />
+    <add key="boxPublicKeyId" value="PUBLIC_KEY_ID" />
+  </appSettings>
+</configuration>
