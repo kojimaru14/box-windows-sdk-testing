@@ -1,13 +1,14 @@
 ﻿using Box.V2.Config;
 using Box.V2.JWTAuth;
 using Box.V2.Models;
+using Box.V2;
 using System;
 using System.Net;
 using System.Configuration;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Box.V2.Samples.JWTAuth
+namespace JWTtest
 {
   class Program
   {
@@ -53,36 +54,34 @@ namespace Box.V2.Samples.JWTAuth
 
       var adminClient = boxJWT.AdminClient(adminToken);
 
-      Console.WriteLine("Admin root folder items");
-      var items = await adminClient.FoldersManager.GetFolderItemsAsync("0", 500);
-      items.Entries.ForEach(i =>
-      {
-        Console.WriteLine("\t{0}", i.Name);
-        //if (i.Type == "file")
-        //{
-        //    var previewLink = adminClient.FilesManager.GetPreviewLinkAsync(i.Id).Result;
-        //    Console.WriteLine("\tPreview Link: {0}", previewLink.ToString());
-        //    Console.WriteLine();
-        //}   
-      });
-      Console.WriteLine();
+      var adminFunc = new Func(adminClient);
+      adminFunc.GetFolderItems();
 
-      var userRequest = new BoxUserRequest() { Name = "test appuser", IsPlatformAccessOnly = true };
-      var appUser = await adminClient.UsersManager.CreateEnterpriseUserAsync(userRequest);
-      Console.WriteLine("Created App User");
+      var userId = "3768478578";
+      var userToken = boxJWT.UserToken(userId); // valid for 60 minutes so should be cached and re-used
+      BoxClient userClient = boxJWT.UserClient(userToken, userId);
 
-      var userToken = boxJWT.UserToken(appUser.Id);
-      var userClient = boxJWT.UserClient(userToken, appUser.Id);
+      var userFunc = new Func(userClient);
+      userFunc.GetFolderItems();
+      
+      // Stream fileContents = await userClient.FilesManager.DownloadStreamAsync(id: "675996854920"); // Download the file 675996854920
 
-      var userDetails = await userClient.UsersManager.GetCurrentUserInformationAsync();
-      Console.WriteLine("\nApp User Details:");
-      Console.WriteLine("\tId: {0}", userDetails.Id);
-      Console.WriteLine("\tName: {0}", userDetails.Name);
-      Console.WriteLine("\tStatus: {0}", userDetails.Status);
-      Console.WriteLine();
+      // var userRequest = new BoxUserRequest() { Name = "test appuser", IsPlatformAccessOnly = true };
+      // var appUser = await adminClient.UsersManager.CreateEnterpriseUserAsync(userRequest);
+      // Console.WriteLine("Created App User");
 
-      await adminClient.UsersManager.DeleteEnterpriseUserAsync(appUser.Id, false, true);
-      Console.WriteLine("Deleted App User");
+      // var userToken = boxJWT.UserToken(appUser.Id);
+      // var userClient = boxJWT.UserClient(userToken, appUser.Id);
+
+      // var userDetails = await userClient.UsersManager.GetCurrentUserInformationAsync();
+      // Console.WriteLine("\nApp User Details:");
+      // Console.WriteLine("\tId: {0}", userDetails.Id);
+      // Console.WriteLine("\tName: {0}", userDetails.Name);
+      // Console.WriteLine("\tStatus: {0}", userDetails.Status);
+      // Console.WriteLine();
+
+      // await adminClient.UsersManager.DeleteEnterpriseUserAsync(appUser.Id, false, true);
+      // Console.WriteLine("Deleted App User");
     }
   }
 }
